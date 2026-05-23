@@ -2,7 +2,7 @@ networks:
   monitoring:
     name: monitoring
     driver: bridge
-  blue-green_default:
+  blue-green-deployment_default:
     external: true
 
 services:
@@ -18,7 +18,7 @@ services:
       - '--storage.tsdb.retention.time=15d'
     networks:
       - monitoring
-      - blue-green_default
+      - blue-green-deployment_default
 
   grafana:
     image: grafana/grafana:latest
@@ -61,17 +61,19 @@ services:
       - '--nginx.scrape-uri=http://nginx/stub_status'
     networks:
       - monitoring
-      - blue-green_default
+      - blue-green-deployment_default
 
   mongodb-exporter:
     image: percona/mongodb_exporter:0.40
     container_name: mongodb-exporter
     restart: unless-stopped
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017
+    command:
+      - '--mongodb.uri=mongodb://mongo:27017'
+      - '--collect-all'
+      - '--compatible-mode'
     networks:
       - monitoring
-      - blue-green_default
+      - blue-green-deployment_default
 
 volumes:
   prometheus_data:
